@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Quest ID Finder</title>
+		<meta content="width=device-width, initial-scale=1">
+		<style>
+			body{
+				background: #eee;
+				font-family: monospace;
+				margin: 0;
+				padding: 0;
+			}
+			.heading{
+				margin: auto;
+				text-align: center;
+				margin-top: 10px;
+				margin-bottom: 15px;
+			}
+			.heading h1{
+				margin: 0;
+				margin-top: 10px;
+				margin-bottom: 10px;
+			}
+			.heading a{
+				text-decoration: none;
+				color: black;
+			}
+			.heading a:hover{
+				text-decoration: underline;
+			}
+			.heading p{
+				margin: 0;
+				margin-bottom: 5px;
+			}
+			.container{
+				width: 640px;
+				margin: auto;
+				padding: 10px;
+				background: #fff;
+			}
+			.search-box{
+				margin-bottom: 10px;
+			}
+			input[name="search-input"]{
+				padding: 8px;
+				font-family: monospace;
+				border: 1px solid #ddd;
+				width: calc(100% - 18px);
+			}
+			.search-result{
+				display: block;
+				padding: 5px;
+			}
+			.search-result .center{
+				display: block;
+				text-align: center;
+				margin: 5px auto;
+			}
+			.search-result li{
+				list-style: none;
+			}
+			@media screen and (max-width: 640px){
+				.container{
+					width: 90%;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="heading">
+				<p>Adventure Quest Worlds</p>
+				<h1>Quest ID Finder</h1>
+				<p><span class="label-total">Total: <span class="total">0</span> quests</span>. <span class="label-defined">Defined: <span class="defined">0</span> quests</span> &amp; <span class="label-undefined">Undefined: <span class="undefined">0</span> quests</span></p>
+				<p>Maintained by <a href="http://github.com/komakocchi" title="Komakocchi" target="_blank">Komako</a>. Quest ID from <a href="http://www.epicalyx.org/2012/06/aqw-quest-id-updated-june-2012.html" title="AQW Quest IDs (Updated March 2016)" rel="nofollow" target="_blank">Epicalyx</a> & <a href="https://www.mpgh.net/forum/showthread.php?t=1310291" title="[Source Code] Quest ID Updated 3001-6000" rel="nofollow" target="_blank">MPGH</a>.</p>
+			</div>
+			<div class="search-box">
+				<div class="search-box-wrap">
+					<input type="text" name="search-input" placeholder="Waiting..." disabled="disabled">
+				</div>
+			</div>
+			<div class="search-result" id="search-result">
+				<div class="center">Please input the title quest!</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			window._searchInput = window.document.querySelector('input[name="search-input"]');
+			window._searchNow = function(){
+				if(window._searchInput.value && window._searchResult.innerHTML[1] !== 'l') window._searchResult.innerHTML = '<div class="center">Searching "' + window._searchInput.value + '"</div>';
+				setTimeout(function(){
+					window._searchQueue = [];
+					var value = window._searchInput.value.toUpperCase();
+					for(var id in window._quests){
+						if(window._quests[id].toUpperCase().indexOf(value) > -1){
+							window._searchQueue.push('(' + id + ') ' + window._quests[id]);
+						}
+					}
+					if(!window._searchQueue.length){
+						window._searchResult.innerHTML = '<div class="center">No result</div>';
+						return;
+					}
+					if(!value){
+						window._searchResult.innerHTML = '<div class="center">Please input the title quest!</div>';
+						return;
+					}
+					var listsQuest = [];
+					for(var index in window._searchQueue){
+						listsQuest.push('<li>' + window._searchQueue[index] + '</li>');
+					}
+					window._searchResult.innerHTML = '<div class="center">Search total: ' + listsQuest.length + ' quest' + ((listsQuest.length > 1) ? 's' : '') + '</div>';
+					window._searchResult.innerHTML += listsQuest.join("\n");
+				}, 100);
+			};
+			window._searchResult = window.document.querySelector('#search-result');
+			window._searchQueue = [];
+			window._questsInfo = function(){
+				var totalQuests = 0;
+				var definedQuests = 0;
+				var undefinedQuests = 0;
+				for(var id in window._quests){
+					totalQuests++;
+					if(window._quests[id]) definedQuests++;
+					else undefinedQuests++;
+				}
+				return {
+					totalQuests: totalQuests,
+					definedQuests: definedQuests,
+					undefinedQuests: undefinedQuests
+				};
+			};
+			window._questsTotal = window.document.querySelector('.total');
+			window._questsDefined = window.document.querySelector('.defined');
+			window._questsUndefined = window.document.querySelector('.undefined');
+			window.onload = function(){
+				var loadQuests = new XMLHttpRequest();
+				loadQuests.open('GET', 'id.json', true);
+				loadQuests.responseType = 'text';
+				loadQuests.onloadstart = function(){
+					window._searchInput.setAttribute('placeholder', 'Load all quests...');
+				};
+				loadQuests.onload = function(){
+					var quests = loadQuests.response;
+					quests = JSON.parse(quests);
+					window._quests = quests;
+					window._searchInput.removeAttribute('disabled');
+					window._searchInput.setAttribute('placeholder', 'Please input the title quest');
+					window._searchInput.onkeyup = window._searchNow;
+					var info = window._questsInfo();
+					window._questsTotal.innerHTML = info['totalQuests'];
+					window._questsDefined.innerHTML = info['definedQuests'];
+					window._questsUndefined.innerHTML = info['undefinedQuests'];
+
+				};
+				loadQuests.send();
+			};
+		</script>
+	</body>
+</html>
