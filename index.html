@@ -107,7 +107,7 @@
 					for(var index in window._searchQueue){
 						listsQuest.push('<li>' + window._searchQueue[index] + '</li>');
 					}
-					window._searchResult.innerHTML = '<div class="center">Search total: ' + listsQuest.length + ' quest' + ((listsQuest.length > 1) ? 's' : '') + '</div>';
+					window._searchResult.innerHTML = '<div class="center">Total searched: ' + listsQuest.length + ' quest' + ((listsQuest.length > 1) ? 's' : '') + '</div>';
 					window._searchResult.innerHTML += listsQuest.join("\n");
 				}, 100);
 			};
